@@ -27,6 +27,7 @@ def lex(fName):
 
         # Check for end of file
         if data[pos] == "\0":
+            tokens.append([END, "\0", pos, 1])
             break
 
         # Check if the position in the string is a one character token
@@ -42,7 +43,7 @@ def lex(fName):
             tokens.append([SEMICOLON, ";", pos, 1])
 
         # Check for strings
-        if isQuote(data[pos]):
+        elif isQuote(data[pos]):
 
             # Set the type of quote
             quote = data[pos]
@@ -132,6 +133,24 @@ def lex(fName):
                 pos += 1
             else:
                 tokens.append([ASSIGNMENTOPERATOR, "=", pos, 1])
+        # Check for compound operator
+        elif isOperator(data[pos]):
+
+            # Check whether the next location is an operator
+            if not isOperator(data[pos + 1]):
+                tokens.append([UNARYOPERATOR, data[pos], pos, 1])
+            else:
+
+                # Fetch the compound operator
+                operator = data[pos] + data[pos + 1]
+                
+                # Check whether it is a valid compound operator
+                if operator in compoundOperators:
+                    tokens.append([COMPOUNDOPERATOR, operator, pos, 2])
+
+                # Shift pos to next position
+                pos += 1
+                    
                 
 
         # Go to the next position

@@ -44,6 +44,22 @@ reservedWords = [
     "char"
 ]
 
+# Store a list of valid compound operators
+compoundOperators = [
+    ">=",
+    "<=",
+    "&=",
+    "|=",
+    "^=",
+    "+=",
+    "-=",
+    "*=",
+    "/=",
+    "&&",
+    "||",
+    "!="
+]
+
 # Define functions to check if something is a given token
 def isCharacter(x):
     return re.search("[a-zA-Z]", x)
