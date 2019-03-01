@@ -2,8 +2,19 @@
 import os
 from tokens import *
 
-# Create a function to lex a given file
-def lex(fName):
+# Set the start position
+global pos
+
+# Create a global variable for the data
+global data
+
+# Function to load a file
+def load(fName):
+
+    # Fetch the globals
+    global data
+    global pos
+    pos = 0
 
     # Check that the file exists
     if not os.path.isfile(fName):
@@ -13,161 +24,151 @@ def lex(fName):
     # Fetch the data from the file
     data = open(fName,"r").read() + "\0"
 
+# Create a function to lex a given file
+def lexan():
+
+    # Fetch the position of the lexer
+    global pos
+
     # Create a list to hold the tokens
     tokens = []
 
     # Count the number of tokens
     count = -1
 
-    # Set the start position
-    pos = 0
+    # Check for end of file
+    if data[pos] == "\0":
+        return [END, "\0", pos, 1]
 
-    # Create a loop to look over the file
-    while True:
+    # Check if the position in the string is a one character token
+    if data[pos] == " ":
+        return [SPACE, " ", pos, 1]
+    elif data[pos] == "\n":
+        return [LINEFEED, "\\n", pos, 1]
+    elif data[pos] == "\r":
+        return [CARRIAGERETURN, "\\r", pos, 1]
+    elif data[pos] == "\t":
+        return [TAB, "\\t", pos, 1]
+    elif data[pos] == ";":
+        return [SEMICOLON, ";", pos, 1]
+    elif isParenthesis(data[pos]):
+        return [PARENTHESIS, data[pos], pos, 1]
 
-        # Check for end of file
-        if data[pos] == "\0":
-            tokens.append([END, "\0", pos, 1])
-            break
+    # Check for strings
+    elif isQuote(data[pos]):
 
-        # Check if the position in the string is a one character token
-        if data[pos] == " ":
-            tokens.append([SPACE, " ", pos, 1])
-        elif data[pos] == "\n":
-            tokens.append([LINEFEED, "\\n", pos, 1])
-        elif data[pos] == "\r":
-            tokens.append([CARRIAGERETURN, "\\r", pos, 1])
-        elif data[pos] == "\t":
-            tokens.append([TAB, "\\t", pos, 1])
-        elif data[pos] == ";":
-            tokens.append([SEMICOLON, ";", pos, 1])
+        # Set the type of quote
+        quote = data[pos]
 
-        # Check for strings
-        elif isQuote(data[pos]):
+        # Set the start point
+        start = pos
 
-            # Set the type of quote
-            quote = data[pos]
+        # Create a new string
+        string = data[pos]
 
-            # Set the start point
-            start = pos
+        # Set the length of the identifier
+        length = 1
 
-            # Create a new string
-            string = data[pos]
+        # While we haven't reached something that isn't a letter, number or underscore
+        while not data[pos + 1] == quote:
 
-            # Set the length of the identifier
-            length = 1
-
-            # While we haven't reached something that isn't a letter, number or underscore
-            while not data[pos + 1] == quote:
-
-                # Add to the identifier and increment pos by length
-                string += data[pos + 1]
-                length += 1
-                pos += 1
-
-            # Add the closing quotation mark
+            # Add to the identifier and increment pos by length
             string += data[pos + 1]
+            length += 1
             pos += 1
 
-            # Check if the length is 1 and if so add a character, otherwise string
-            if length == 2:
-                tokens.append([CHARCON, string, start, 3])
-            else:
-                tokens.append([STRINGCON, string, start, length + 1])
-
-        # Check for a number
-        elif isNumber(data[pos]):
-
-            # Set the start point
-            start = pos
-
-            # Create a new string
-            num = data[pos]
-
-            # Set the length of the identifier
-            length = 1
-
-            # While we haven't reached something that isn't a letter, number or underscore
-            while isNumber(data[pos + 1]):
-
-                # Add to the identifier and increment pos by length
-                num += data[pos + 1]
-                length += 1
-                pos += 1
-
-            # Add the string constant
-            tokens.append([INTCON, num, start, length])
-
-            
-
-        # Check if the position is a letter
-        elif isCharacter(data[pos]) or isUnderscore(data[pos]):
-
-            # Set the start point
-            start = pos
-
-            # Add to a new string
-            identifier = data[pos]
-
-            # Set the length of the identifier
-            length = 1
-
-            # While we haven't reached something that isn't a letter, number or underscore
-            while isIdentifier(data[pos + 1]):
-
-                # Add to the identifier and increment pos by length
-                identifier += data[pos + 1]
-                length += 1
-                pos += 1
-
-            # Check if the identifier is a reserved word
-            if identifier in reservedWords:
-                tokens.append([RESERVEDWORD, identifier, start, length])
-            else:
-                tokens.append([IDENTIFIER, identifier, start, length])
-
-        # If the position is an equals, check if the character after is as well
-        elif data[pos] == "=":
-            if data[pos + 1] == "=":
-                tokens.append([COMPOUNDOPERATOR, "==", pos, 2])
-                pos += 1
-            else:
-                tokens.append([ASSIGNMENTOPERATOR, "=", pos, 1])
-        # Check for compound operator
-        elif isOperator(data[pos]):
-
-            # Check whether the next location is an operator
-            if not isOperator(data[pos + 1]):
-                tokens.append([UNARYOPERATOR, data[pos], pos, 1])
-            else:
-
-                # Fetch the compound operator
-                operator = data[pos] + data[pos + 1]
-                
-                # Check whether it is a valid compound operator
-                if operator in compoundOperators:
-                    tokens.append([COMPOUNDOPERATOR, operator, pos, 2])
-
-                # Shift pos to next position
-                pos += 1
-                    
-                
-
-        # Go to the next position
+        # Add the closing quotation mark
+        string += data[pos + 1]
         pos += 1
 
-            
+        # Check if the length is 1 and if so add a character, otherwise string
+        if length == 2:
+            return [CHARCON, string, start, 3]
+        else:
+            return [STRINGCON, string, start, length + 1]
 
-    return tokens
+    # Check for a number
+    elif isNumber(data[pos]):
+
+        # Set the start point
+        start = pos
+
+        # Create a new string
+        num = data[pos]
+
+        # Set the length of the identifier
+        length = 1
+
+        # While we haven't reached something that isn't a letter, number or underscore
+        while isNumber(data[pos + 1]):
+
+            # Add to the identifier and increment pos by length
+            num += data[pos + 1]
+            length += 1
+            pos += 1
+
+        # Add the string constant
+        return [INTCON, num, start, length]
+
+        
+
+    # Check if the position is a letter
+    elif isCharacter(data[pos]) or isUnderscore(data[pos]):
+
+        # Set the start point
+        start = pos
+
+        # Add to a new string
+        identifier = data[pos]
+
+        # Set the length of the identifier
+        length = 1
+
+        # While we haven't reached something that isn't a letter, number or underscore
+        while isIdentifier(data[pos + 1]):
+
+            # Add to the identifier and increment pos by length
+            identifier += data[pos + 1]
+            length += 1
+            pos += 1
+
+        # Check if the identifier is a reserved word
+        if identifier in reservedWords:
+            return [RESERVEDWORD, identifier, start, length]
+        else:
+            return [IDENTIFIER, identifier, start, length]
+
+    # If the position is an equals, check if the character after is as well
+    elif data[pos] == "=":
+        if data[pos + 1] == "=":
+            return [COMPOUNDOPERATOR, "==", pos, 2]
+            pos += 1
+        else:
+            return [ASSIGNMENTOPERATOR, "=", pos, 1]
+    # Check for compound operator
+    elif isOperator(data[pos]):
+
+        # Check whether the next location is an operator
+        if not isOperator(data[pos + 1]):
+            return [UNARYOPERATOR, data[pos], pos, 1]
+        else:
+
+            # Fetch the compound operator
+            operator = data[pos] + data[pos + 1]
+            
+            # Check whether it is a valid compound operator
+            if operator in compoundOperators:
+                return [COMPOUNDOPERATOR, operator, pos, 2]
             
             
 
 if __name__ == "__main__":
-    
-    tks = lex("main.sc")
 
-    out = ""
+    # Open the file
+    load("main.sc")
 
-    for t in tks:
+    # While we haven't reached the end of the file
+    while pos < len(data):
+        t = lexan()
         print("{} '{}' AT LOCATION {} OF FILE".format(tokens[t[0]], t[1], t[2]))
-        out += tokens[t[0]]
+        pos += 1
