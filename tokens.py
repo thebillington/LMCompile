@@ -2,7 +2,7 @@
 import re
 
 # Store the valid tokens as strings
-tokens = [
+tkns = [
     "<IDENTIFIER>",
     "<INTCON>",
     "<CHARCON>",
@@ -41,7 +41,9 @@ RESERVEDWORD = 14
 reservedWords = [
     "print",
     "int",
-    "char"
+    "char",
+    "str",
+    "if"
 ]
 
 # Store a list of valid compound operators
@@ -71,7 +73,7 @@ def isOperator(x):
     return re.search("[\\=\\*\\/\\%\\+\\-\\<\\>\\&\\^\\|\\~\\!]", x)
 def isParenthesis(x):
     return re.search("[\\(\\)\\{\\}]", x)
-def isIdentifier(x):
+def isAlphanum(x):
     return isCharacter(x) or isNumber(x) or isUnderscore(x)
 def isQuote(x):
     return x == "\"" or x == "\'"
