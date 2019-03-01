@@ -1,4 +1,4 @@
-# Import the os module
+# Imports
 import os
 from tokens import *
 
@@ -31,27 +31,52 @@ def lex(fName):
 
         # Check if the position in the string is a one character token
         if data[pos] == " ":
-            tokens.append([SPACE, " ", pos])
+            tokens.append([SPACE, " ", pos, 1])
             pos += 1
             continue
         elif data[pos] == "\n":
-            tokens.append([LINEFEED, "\\n", pos])
+            tokens.append([LINEFEED, "\\n", pos, 1])
             pos += 1
             continue
         elif data[pos] == "\r":
-            tokens.append([CARRIAGERETURN, "\\r", pos])
+            tokens.append([CARRIAGERETURN, "\\r", pos, 1])
             pos += 1
             continue
         elif data[pos] == "\t":
-            tokens.append([TAB, "\\t", pos])
+            tokens.append([TAB, "\\t", pos, 1])
             pos += 1
             continue
         elif data[pos] == ";":
-            tokens.append([SEMICOLON, ";", pos])
+            tokens.append([SEMICOLON, ";", pos, 1])
             pos += 1
             continue
 
+        # Check if the position is a letter
+        if isCharacter(data[pos]) or isUnderscore(data[pos]):
+
+            # Add to a new string
+            identifier = data[pos]
+
+            # Set the length of the identifier
+            length = 1
+
+            # While we haven't reached something that isn't a letter, number or underscore
+            while isIdentifier(data[pos + length]):
+
+                # Add to the identifier and increment pos by length
+                identifier += data[pos + length]
+                pos += length
+
+            # Check if the identifier is a reserved word
+            if identifier in reservedWords:
+                tokens.append([RESERVEDWORD, identifier, pos, length])
+            else:
+                tokens.append([IDENTIFIER, identifier, pos, length])
+
+        # Go to the next position
         pos += 1
+
+            
 
     return tokens
             
@@ -62,4 +87,4 @@ if __name__ == "__main__":
     tks = lex("main.sc")
 
     for t in tks:
-        print("TOKEN {} AT LOCATION {} OF FILE".format(tokens[t[0]],t[2]))
+        print("{} '{}' AT LOCATION {} OF FILE".format(tokens[t[0]], t[1], t[2]))
