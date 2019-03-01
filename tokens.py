@@ -40,7 +40,8 @@ RESERVEDWORD = 14
 # Store the reserved words
 reservedWords = [
     "print",
-    "int"
+    "int",
+    "char"
 ]
 
 # Define functions to check if something is a given token
@@ -56,3 +57,5 @@ def isParenthesis(x):
     return re.search("[\\(\\)\\{\\}]", x)
 def isIdentifier(x):
     return isCharacter(x) or isNumber(x) or isUnderscore(x)
+def isQuote(x):
+    return x == "\"" or x == "\'"

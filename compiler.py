@@ -42,7 +42,10 @@ def lex(fName):
             tokens.append([SEMICOLON, ";", pos, 1])
 
         # Check for strings
-        if data[pos] == "\"":
+        if isQuote(data[pos]):
+
+            # Set the type of quote
+            quote = data[pos]
 
             # Set the start point
             start = pos
@@ -54,18 +57,47 @@ def lex(fName):
             length = 1
 
             # While we haven't reached something that isn't a letter, number or underscore
-            while not data[pos + length] == "\"":
+            while not data[pos + 1] == quote:
 
                 # Add to the identifier and increment pos by length
-                string += data[pos + length]
-                pos += length
+                string += data[pos + 1]
+                length += 1
+                pos += 1
 
             # Add the closing quotation mark
-            string += data[pos + length]
+            string += data[pos + 1]
             pos += 1
 
+            # Check if the length is 1 and if so add a character, otherwise string
+            if length == 2:
+                tokens.append([CHARCON, string, start, 3])
+            else:
+                tokens.append([STRINGCON, string, start, length + 1])
+
+        # Check for a number
+        elif isNumber(data[pos]):
+
+            # Set the start point
+            start = pos
+
+            # Create a new string
+            num = data[pos]
+
+            # Set the length of the identifier
+            length = 1
+
+            # While we haven't reached something that isn't a letter, number or underscore
+            while isNumber(data[pos + 1]):
+
+                # Add to the identifier and increment pos by length
+                num += data[pos + 1]
+                length += 1
+                pos += 1
+
             # Add the string constant
-            tokens.append([STRINGCON, string, start, length + 1])
+            tokens.append([INTCON, num, start, length])
+
+            
 
         # Check if the position is a letter
         elif isCharacter(data[pos]) or isUnderscore(data[pos]):
@@ -80,11 +112,12 @@ def lex(fName):
             length = 1
 
             # While we haven't reached something that isn't a letter, number or underscore
-            while isIdentifier(data[pos + length]):
+            while isIdentifier(data[pos + 1]):
 
                 # Add to the identifier and increment pos by length
-                identifier += data[pos + length]
-                pos += length
+                identifier += data[pos + 1]
+                length += 1
+                pos += 1
 
             # Check if the identifier is a reserved word
             if identifier in reservedWords:
@@ -119,5 +152,3 @@ if __name__ == "__main__":
     for t in tks:
         print("{} '{}' AT LOCATION {} OF FILE".format(tokens[t[0]], t[1], t[2]))
         out += tokens[t[0]]
-
-    print(out)
