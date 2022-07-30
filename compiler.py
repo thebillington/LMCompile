@@ -86,10 +86,10 @@ def lexan():
         quote = data[pos]
 
         # Set the start point
-        start = pos
+        start = pos + 1
 
         # Create a new string
-        string = data[pos]
+        string = ""
 
         # Set the length of the identifier
         length = 1
@@ -102,15 +102,13 @@ def lexan():
             length += 1
             pos += 1
 
-        # Add the closing quotation mark
-        string += data[pos + 1]
         pos += 1
 
         # Check if the length is 1 and if so add a character, otherwise string
         if length == 2:
-            lex = [CHARCON, string, start, 3]
+            lex = [CHARCON, string, start, 1]
         else:
-            lex = [STRINGCON, string, start, length + 1]
+            lex = [STRINGCON, string, start, length - 1]
 
     # Check for a number
     elif isNumber(data[pos]):
@@ -205,7 +203,6 @@ def lexan():
                 print("\nError on line {}: {} is not a valid operator\n\t{}".format(line, operator, lines[line]))
                 return "ERROR"
                 
-                
     # If the synbol is not a space or reserved word, reset last reserved word
     if not lex[0] == RESERVEDWORD and not lex[0] == SPACE:
         lastReservedWord = None
@@ -220,7 +217,12 @@ if __name__ == "__main__":
     # Open the file
     load("main.smc")
 
+    lexans = []
+
     # While we haven't reached the end of the file
     while pos < len(data):
         t = lexan()
+        lexans.append(t)
         pos += 1
+
+    print(lexans)

@@ -1,8 +1,7 @@
 int x = 36;
 int y = 429;
 char c = 'a';
-str x = "test";
 
 if (x == y) {
-	print("Equal");
+	print("a");
 }
