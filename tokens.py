@@ -1,41 +1,15 @@
 # Imports
 import re
 
-# Store the valid tokens as strings
-tkns = [
-    "<IDENTIFIER>",
-    "<INTCON>",
-    "<CHARCON>",
-    "<STRINGCON>",
-    "<END>",
-    "<SPACE>",
-    "<ASSIGNMENTOPERATOR>",
-    "<UNARYOPERATOR>",
-    "<COMPOUNDOPERATOR>",
-    "<PARENTHESIS>",
-    "<LINEFEED>",
-    "<CARRIAGERETURN>",
-    "<TAB>",
-    "<SEMICOLON>",
-    "<RESERVEDWORD>"
-]
+class Lexan:
+    def __init__(self, TOKEN, VALUE, POSITION, LENGTH):
+        self.TOKEN = "<" + TOKEN + ">"
+        self.VALUE = VALUE
+        self.POSITION = POSITION
+        self.LENGTH = LENGTH
 
-# Create the 'enums'
-IDENTIFIER = 0
-INTCON = 1
-CHARCON = 2
-STRINGCON = 3
-END = 4
-SPACE = 5
-ASSIGNMENTOPERATOR = 6
-UNARYOPERATOR = 7
-COMPOUNDOPERATOR = 8
-PARENTHESIS = 9
-LINEFEED = 10
-CARRIAGERETURN = 11
-TAB = 12
-SEMICOLON = 13
-RESERVEDWORD = 14
+    def __repr__(self):
+        return self.TOKEN
 
 # Store the reserved words
 reservedWords = [
@@ -71,8 +45,6 @@ def isUnderscore(x):
     return x == "_"
 def isOperator(x):
     return re.search("[\\=\\*\\/\\%\\+\\-\\<\\>\\&\\^\\|\\~\\!]", x)
-def isParenthesis(x):
-    return re.search("[\\(\\)\\{\\}]", x)
 def isAlphanum(x):
     return isCharacter(x) or isNumber(x) or isUnderscore(x)
 def isQuote(x):

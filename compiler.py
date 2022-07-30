@@ -1,6 +1,7 @@
 # Imports
 import os
 from tokens import *
+from parser import parse
 
 # Set the start position
 global pos
@@ -41,7 +42,7 @@ def load(fName):
     lines = data.split("\n")
 
 # Create a function to lex a given file
-def lexan():
+def lex():
 
     # Fetch the globals
     global pos
@@ -56,28 +57,33 @@ def lexan():
     # Count the number of tokens
     count = -1
 
-    # Store the lex for this section
-    lex = None
+    # Store the lexan for this section
+    lexan = None
+
+    # Filter out comments
+    if data[pos] == "/" and data[pos+1] == "/":
+        while data[pos] != "\n":
+            pos += 1
+        return
+    
+    if data[pos] == "\n" or data[pos] == "\t":
+        return
 
     # Check for end of file
     if data[pos] == "\0":
-        lex = [END, "\0", pos, 1]
+        lexan = Lexan("END", "\0", pos, 1)
 
     # Check if the position in the string is a one character token
-    if data[pos] == " ":
-        lex = [SPACE, " ", pos, 1]
-    elif data[pos] == "\n":
-        linePos = 0
-        line += 1
-        lex = [LINEFEED, "\\n", pos, 1]
-    elif data[pos] == "\r":
-        lex = [CARRIAGERETURN, "\\r", pos, 1]
-    elif data[pos] == "\t":
-        lex = [TAB, "\\t", pos, 1]
     elif data[pos] == ";":
-        lex = [SEMICOLON, ";", pos, 1]
-    elif isParenthesis(data[pos]):
-        lex = [PARENTHESIS, data[pos], pos, 1]
+        lexan = Lexan("SEMICOLON", ";", pos, 1)
+    elif data[pos] == "{":
+        lexan = Lexan("OPENBRACE", data[pos], pos, 1)
+    elif data[pos] == "}":
+        lexan = Lexan("CLOSEBRACE", data[pos], pos, 1)
+    elif data[pos] == "(":
+        lexan = Lexan("OPENPARENTHESIS", data[pos], pos, 1)
+    elif data[pos] == ")":
+        lexan = Lexan("CLOSEPARENTHESIS", data[pos], pos, 1)
 
     # Check for strings
     elif isQuote(data[pos]):
@@ -106,9 +112,9 @@ def lexan():
 
         # Check if the length is 1 and if so add a character, otherwise string
         if length == 2:
-            lex = [CHARCON, string, start, 1]
+            lexan = Lexan("CHARCON", string, start, 1)
         else:
-            lex = [STRINGCON, string, start, length - 1]
+            lexan = Lexan("STRINGCON", string, start, length - 1)
 
     # Check for a number
     elif isNumber(data[pos]):
@@ -131,7 +137,7 @@ def lexan():
             pos += 1
 
         # Add the string constant
-        lex = [INTCON, num, start, length]
+        lexan = Lexan("INTCON", num, start, length)
 
     # Check if the position is a letter
     elif isCharacter(data[pos]) or isUnderscore(data[pos]):
@@ -157,7 +163,7 @@ def lexan():
         if word in reservedWords:
             # Store the last reserved word
             lastReservedWord = word
-            lex = [RESERVEDWORD, word, start, length]
+            lexan = Lexan("RESERVEDWORD", word, start, length)
         else:
 
             # Check it is in the symbol table already
@@ -176,21 +182,22 @@ def lexan():
                 symbolTable[word] = (identifierCount, lastReservedWord)
                 identifierCount += 1
             
-            lex = [IDENTIFIER, word, start, length]
+            lexan = Lexan("IDENTIFIER", word, start, length)
 
     # If the position is an equals, check if the character after is as well
     elif data[pos] == "=":
         if data[pos + 1] == "=":
-            lex = [COMPOUNDOPERATOR, "==", pos, 2]
+            lexan = Lexan("COMPOUNDOPERATOR", "==", pos, 2)
             pos += 1
         else:
-            lex = [ASSIGNMENTOPERATOR, "=", pos, 1]
+            lexan = Lexan("ASSIGNMENTOPERATOR", "=", pos, 1)
+
     # Check for compound operator
     elif isOperator(data[pos]):
 
         # Check whether the next location is an operator
         if not isOperator(data[pos + 1]):
-            lex = [UNARYOPERATOR, data[pos], pos, 1]
+            lexan = Lexan("UNARYOPERATOR", data[pos], pos, 1)
         else:
 
             # Fetch the compound operator
@@ -198,19 +205,20 @@ def lexan():
             
             # Check whether it is a valid compound operator
             if operator in compoundOperators:
-                lex = [COMPOUNDOPERATOR, operator, pos, 2]
+                lexan = Lexan("COMPOUNDOPERATOR", operator, pos, 2)
             else:
                 print("\nError on line {}: {} is not a valid operator\n\t{}".format(line, operator, lines[line]))
                 return "ERROR"
                 
+    
     # If the synbol is not a space or reserved word, reset last reserved word
-    if not lex[0] == RESERVEDWORD and not lex[0] == SPACE:
+    if not lexan == "RESERVEDWORD" and not data[pos] == " ":
         lastReservedWord = None
 
     # Add one to the line position
     linePos += 1
 
-    return lex
+    return lexan
 
 if __name__ == "__main__":
 
@@ -221,8 +229,9 @@ if __name__ == "__main__":
 
     # While we haven't reached the end of the file
     while pos < len(data):
-        t = lexan()
-        lexans.append(t)
+        t = lex()
+        if t:
+            lexans.append(t)
         pos += 1
-
-    print(lexans)
+        
+    parse(lexans)

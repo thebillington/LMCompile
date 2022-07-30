@@ -1,7 +1,1 @@
-int x = 36;
-int y = 429;
-char c = 'a';
-
-if (x == y) {
-	print("a");
-}
+print("Hello, World!");
