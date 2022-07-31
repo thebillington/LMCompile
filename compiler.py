@@ -160,10 +160,10 @@ def lex():
             pos += 1
 
         # Check if the identifier is a reserved word
-        if word in reservedWords:
-            # Store the last reserved word
-            lastReservedWord = word
-            lexan = Lexan("RESERVEDWORD", word, start, length)
+        if word == "printi":
+            lexan = Lexan("PRINTIFUN", word, start, length)
+        elif word == "printc":
+            lexan = Lexan("PRINTCFUN", word, start, length)
         else:
 
             # Check it is in the symbol table already

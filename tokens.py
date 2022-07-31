@@ -11,15 +11,6 @@ class Lexan:
     def __repr__(self):
         return self.TOKEN
 
-# Store the reserved words
-reservedWords = [
-    "print",
-    "int",
-    "char",
-    "str",
-    "if"
-]
-
 # Store a list of valid compound operators
 compoundOperators = [
     ">=",
