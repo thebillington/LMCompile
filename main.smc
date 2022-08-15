@@ -1,9 +1,9 @@
-printi(3);
+printi(3); // this is a comment
 printc("Hello, World!");
 printc("e");
 printi(30);
-
+// so is this
 printi(3);
 printc("Hello, World!");
 printc("e");
-printi(30);
+printi(30);// il
