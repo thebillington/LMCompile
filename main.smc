@@ -1,2 +1,9 @@
 printi(3);
 printc("Hello, World!");
+printc("e");
+printi(30);
+
+printi(3);
+printc("Hello, World!");
+printc("e");
+printi(30);

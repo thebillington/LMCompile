@@ -38,8 +38,9 @@ def load(fName):
         return
 
     # Fetch the data from the file
-    data = open(fName,"r").read() + "\0"
+    data = open(fName, "r").read() + "\0"
     lines = data.split("\n")
+
 
 # Create a function to lex a given file
 def lex():
@@ -61,17 +62,18 @@ def lex():
     lexan = None
 
     # Filter out comments
-    if data[pos] == "/" and data[pos+1] == "/":
+    if data[pos] == "/" and data[pos + 1] == "/":
         while data[pos] != "\n":
             pos += 1
         return
-    
+
     if data[pos] == "\n" or data[pos] == "\t":
         return
 
     # Check for end of file
     if data[pos] == "\0":
-        lexan = Lexan("END", "\0", pos, 1)
+        # lexan = Lexan("END", "\0", pos, 1)
+        pass
 
     # Check if the position in the string is a one character token
     elif data[pos] == ";":
@@ -114,7 +116,7 @@ def lex():
         if length == 2:
             lexan = Lexan("CHARCON", string, start, 1)
         else:
-            lexan = Lexan("STRINGCON", string, start, length - 1)
+            lexan = Lexan("STRCON", string, start, length - 1)
 
     # Check for a number
     elif isNumber(data[pos]):
@@ -173,15 +175,19 @@ def lex():
                 if not lastReservedWord == None:
 
                     # Already declared
-                    print("\nError on line {}: {} was already declared as {}\n\t{}".format(line,word, symbolTable[word][1], lines[line]))
+                    print(
+                        "\nError on line {}: {} was already declared as {}\n\t{}".format(
+                            line, word, symbolTable[word][1], lines[line]
+                        )
+                    )
                     return "ERROR"
-                        
+
             else:
 
                 # Add to the symbol table
                 symbolTable[word] = (identifierCount, lastReservedWord)
                 identifierCount += 1
-            
+
             lexan = Lexan("IDENTIFIER", word, start, length)
 
     # If the position is an equals, check if the character after is as well
@@ -202,15 +208,18 @@ def lex():
 
             # Fetch the compound operator
             operator = data[pos] + data[pos + 1]
-            
+
             # Check whether it is a valid compound operator
             if operator in compoundOperators:
                 lexan = Lexan("COMPOUNDOPERATOR", operator, pos, 2)
             else:
-                print("\nError on line {}: {} is not a valid operator\n\t{}".format(line, operator, lines[line]))
+                print(
+                    "\nError on line {}: {} is not a valid operator\n\t{}".format(
+                        line, operator, lines[line]
+                    )
+                )
                 return "ERROR"
-                
-    
+
     # If the synbol is not a space or reserved word, reset last reserved word
     if not lexan == "RESERVEDWORD" and not data[pos] == " ":
         lastReservedWord = None
@@ -219,6 +228,7 @@ def lex():
     linePos += 1
 
     return lexan
+
 
 if __name__ == "__main__":
 
@@ -233,5 +243,5 @@ if __name__ == "__main__":
         if t:
             lexans.append(t)
         pos += 1
-        
+
     parse(lexans)
