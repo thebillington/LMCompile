@@ -28,7 +28,7 @@ def parse_int_con(token: Lexan):
     for digit in token.VALUE:
         if digit not in string.digits:
             raise Exception()
-    return IntCon(token.VALUE)
+    return IntCon(int(token.VALUE))
 
 
 def parse_print_c(tokens: deque):
@@ -54,7 +54,7 @@ def parse_print_c(tokens: deque):
         char_str_con = parse_str_con(token)
         print_c = PrintC(char_str_con)
     else:
-        raise Exception()
+        raise Exception("printc can only take a character or string of characters")
 
     # <CLOSEPARENTHESIS>"
     token: Lexan = tokens.popleft()

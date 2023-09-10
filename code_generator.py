@@ -21,6 +21,8 @@ class CodeGenerator:
         
         if isinstance(statement, nodes.PrintI):
             self.generate_print_i(statement.child)
+        if isinstance(statement, nodes.PrintC):
+            self.generate_print_c(statement.child)
 
         self.generate_statement(statement.child)
 
@@ -34,7 +36,10 @@ class CodeGenerator:
             return existing_symbol
         
         symbol_key = f'id{len(self.symbol_table)}'
-        self.symbol_table[symbol_key] = value
+        if isinstance(value, int):
+            self.symbol_table[symbol_key] = value
+        if isinstance(value, str):
+            self.symbol_table[symbol_key] = ord(value)
         return symbol_key
 
     def check_symbol_table(self, value):
@@ -44,8 +49,15 @@ class CodeGenerator:
         return False
 
     def generate_print_i(self, statement):
-        if not isinstance(statement, nodes.IntCon):
-            raise Exception("printi may only accept integers")
         value = statement.child
         symbol = self.get_symbol(value)
         self.output += code_blocks.print_integer.format(id=symbol)
+
+    def generate_print_c(self, statement):
+        value = statement.child
+        for char in value:
+            symbol = self.get_symbol(char)
+            self.output += code_blocks.print_character.format(id=symbol)
+
+    def generate_print_c_string(self, statement):
+        return
