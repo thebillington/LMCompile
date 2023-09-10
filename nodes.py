@@ -1,13 +1,11 @@
 from tokens import *
 
-
 class Statement:
     def __init__(self, child):
         self.child = child
 
     def __repr__(self):
         return f"Statement({self.child})"
-
 
 class PrintI:
     def __init__(self, child):
@@ -16,14 +14,12 @@ class PrintI:
     def __repr__(self):
         return f"PrintI({self.child})"
 
-
 class PrintC:
     def __init__(self, child):
         self.child = child
 
     def __repr__(self):
         return f"PrintC({self.child})"
-
 
 class IntCon:
     def __init__(self, child):
@@ -32,14 +28,12 @@ class IntCon:
     def __repr__(self):
         return f"IntCon({self.child})"
 
-
 class CharCon:
     def __init__(self, child):
         self.child = child
 
     def __repr__(self):
         return f"CharCon({self.child})"
-
 
 class StrCon:
     def __init__(self, child):

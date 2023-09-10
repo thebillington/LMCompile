@@ -124,4 +124,4 @@ def parse(lexans: list[Lexan]):
     while len(tokens) > 0:
         program.append(parse_statement(tokens))
 
-    print(program)
+    return program

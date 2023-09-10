@@ -2,6 +2,7 @@
 import os
 from tokens import *
 from parser import parse
+from code_generator import CodeGenerator
 
 # Set the start position
 global pos
@@ -244,4 +245,7 @@ if __name__ == "__main__":
             lexans.append(t)
         pos += 1
 
-    parse(lexans)
+    program = parse(lexans)
+
+    code_generator = CodeGenerator(program)
+    print(code_generator.generate())
